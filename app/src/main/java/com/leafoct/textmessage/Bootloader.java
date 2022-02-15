@@ -39,13 +39,15 @@ public class Bootloader extends AppCompatActivity {
             finish();
             return;
         }
+
+        final String local_ip = getIpAddress();
+        getSupportActionBar().setTitle(local_ip);
         Button enter = findViewById(R.id.enter);
         enter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText pc_ip = findViewById(R.id.pc_ip);
                 String pcip = pc_ip.getText().toString();
-                String local_ip = getIpAddress();
                 if(!local_ip.startsWith("192.168.")){
                     Toast.makeText(Bootloader.this, "手机IP不对劲", Toast.LENGTH_LONG).show();
                     finish();
@@ -71,7 +73,7 @@ public class Bootloader extends AppCompatActivity {
         //judge wifi ap
         try {
             WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            //通过放射获取 getWifiApState()方法
+            //通过反射获取 getWifiApState()方法
             Method method = manager.getClass().getDeclaredMethod("getWifiApState");
             //调用getWifiApState() ，获取返回值
             int state = (int) method.invoke(manager);
