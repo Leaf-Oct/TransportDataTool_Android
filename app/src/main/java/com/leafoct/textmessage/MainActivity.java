@@ -27,8 +27,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity {
     private ListView message_list;
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         message_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MessageItem mi=ma.getItem(i);
+                MessageItem mi = ma.getItem(i);
                 copyMessage(mi.getContent());
             }
         });
@@ -161,7 +164,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             super.run();
-            byte[] b = text.getBytes();
+            byte[] b;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                b = text.getBytes(StandardCharsets.UTF_8);
+            } else {
+                b = text.getBytes();
+            }
             DatagramPacket data = new DatagramPacket(b, b.length, target, port);
             try {
                 udp_socket.send(data);
@@ -185,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     udp_socket.receive(pack);
-                    String s = new String(pack.getData(), 0, pack.getLength());
+                    String s = new String(pack.getData(), 0, pack.getLength(),"UTF-8");
                     Bundle bundle = new Bundle();
                     bundle.putString("data", s);
                     Message m = new Message();
@@ -200,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void copyMessage(String s){
+    private void copyMessage(String s) {
         ClipboardManager clipboard = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText(null, s);
         clipboard.setPrimaryClip(clipData);
